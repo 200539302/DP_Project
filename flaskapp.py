@@ -63,33 +63,4 @@ def fetch_and_store_data():
         print("Fetched and stored data successfully.")
         time.sleep(24 * 60 * 60)  # Sleep for 24 hours
 
-@app.route('/')
-def home():
-    return render_template('home.html')
-
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
-@app.route('/chart')
-def chart():
-    client = MongoClient(mongo_uri, server_api=ServerApi('1'))
-    db = client[database_name]
-    collection = db[collection_name]
-    data = list(collection.find())
-
-    # Convert Unix timestamps to JavaScript timestamps and extract high prices
-    processed_data = [{'date': entry['Kline open time'], 'low': float(entry['Low price']),
-                       'open': float(entry['Open price']), 'close': float(entry['Close price']),
-                       'high': float(entry['High price'])} for entry in data]
-
-    data_json = json.dumps(processed_data)  # Convert the processed data to JSON
-    return render_template('chart.html', data=data_json)
-
-
-# Create a new thread for the batch process
-batch_thread = threading.Thread(target=fetch_and_store_data)
-
-if __name__ == '__main__':
-    batch_thread.start()  # Start the batch process thread
-    app.run(host='0.0.0.0', port=80)
+print(data_list)
