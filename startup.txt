@@ -1,1 +1,1 @@
-python3 flaskapp.py
+gunicorn --bind=0.0.0.0 --timeout 600 app:flask_app
