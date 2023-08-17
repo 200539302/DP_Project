@@ -29,7 +29,7 @@ def fetch_and_store_data():
 
         # Binance API parameters
         params = {
-            "symbol": "BTCUSDT",
+            "symbol": "BTCUSD",
             "interval": "15m",
             "startTime": start_time,
             "endTime": end_time
