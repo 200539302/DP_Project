@@ -56,12 +56,13 @@ def fetch_and_store_data():
 
         # Convert DataFrame to list of dictionaries
         data_list = df.to_dict(orient='records')
+        print("data is")
+        print(data_list)
 
         # Insert the data into the MongoDB collection
         collection.insert_many(data_list)
 
         print("Fetched and stored data successfully.")
         time.sleep(24 * 60 * 60)  # Sleep for 24 hours
-        print("data is")
-        print(data_list)
+        
 fetch_and_store_data()
