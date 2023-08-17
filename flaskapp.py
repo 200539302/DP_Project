@@ -29,7 +29,7 @@ def fetch_and_store_data():
 
         # Binance API parameters
         params = {
-            "symbol": "SHIBBUSD",
+            "symbol": "BTCUSDT",
             "interval": "15m",
             "startTime": start_time,
             "endTime": end_time
@@ -79,7 +79,9 @@ def chart():
     data = list(collection.find())
 
     # Convert Unix timestamps to JavaScript timestamps and extract high prices
-    processed_data = [{'date': entry['Kline open time'], 'high': float(entry['High price'])} for entry in data]
+    processed_data = [{'date': entry['Kline open time'], 'low': float(entry['Low price']),
+                       'open': float(entry['Open price']), 'close': float(entry['Close price']),
+                       'high': float(entry['High price'])} for entry in data]
 
     data_json = json.dumps(processed_data)  # Convert the processed data to JSON
     return render_template('chart.html', data=data_json)
