@@ -90,4 +90,4 @@ batch_thread = threading.Thread(target=fetch_and_store_data)
 
 if __name__ == '__main__':
     batch_thread.start()  # Start the batch process thread
-    app.run(debug=True,port=1364)   # Start the Flask app
+    app.run()   # Start the Flask app
