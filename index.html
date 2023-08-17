@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Display MongoDB Data</title>
+</head>
+<body>
+    <h1>Database Records</h1>
+    <ul>
+        {% for record in data %}
+            <li>{{ record }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
