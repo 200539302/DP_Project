@@ -14,54 +14,51 @@ url = "https://api.binance.com/api/v3/klines"
 # MongoDB configuration
 mongo_uri = "mongodb+srv://200539302:3JCo1k2agFosqzHC@cluster0.oj3tfzo.mongodb.net/"
 database_name = "Stockdata"
-collection_name = "binance"
+
+# List of cryptocurrencies
+cryptocurrencies = ["BTCUSDT", "LTCUSDT", "ETHUSDT"]
 
 # Flask app configuration
 app = Flask(__name__)
 
-
 # Function to fetch and store data from Binance
 def fetch_and_store_data():
     while True:
-        # Calculate start and end times for the data fetch (last 24 hours)
         end_time = int(time.time() * 1000)
-        start_time = end_time - 24 * 60 * 60 * 1000  # 24 hours in milliseconds
+        start_time = end_time - 24 * 60 * 60 * 1000
 
-        # Binance API parameters
-        params = {
-            "symbol": "BTCUSDT",
-            "interval": "5m",
-            "startTime": start_time,
-            "endTime": end_time
-        }
+        for symbol in cryptocurrencies:
+            params = {
+                "symbol": symbol,
+                "interval": "5m",
+                "startTime": start_time,
+                "endTime": end_time
+            }
 
-        response = requests.get(url, params=params)
-        data = response.json()
+            response = requests.get(url, params=params)
+            data = response.json()
 
-        columns = [
-            "Kline open time", "Open price", "High price", "Low price", "Close price",
-            "Volume", "Kline close time", "Quote asset volume", "Number of trades",
-            "Taker buy base asset volume", "Taker buy quote asset volume", "Unused"
-        ]
+            columns = [
+                "Kline open time", "Open price", "High price", "Low price", "Close price",
+                "Volume", "Kline close time", "Quote asset volume", "Number of trades",
+                "Taker buy base asset volume", "Taker buy quote asset volume", "Unused"
+            ]
 
-        df = pd.DataFrame(data, columns=columns)
+            df = pd.DataFrame(data, columns=columns)
 
-        # Connect to MongoDB
-        client = MongoClient(mongo_uri, server_api=ServerApi('1'))
-        db = client[database_name]
-        collection = db[collection_name]
+            client = MongoClient(mongo_uri, server_api=ServerApi('1'))
+            db = client[database_name]
+            collection_name = symbol.lower()  # Use lowercase symbol as collection name
+            collection = db[collection_name]
 
-        # Delete previous data
-        collection.delete_many({})
+            collection.delete_many({})
 
-        # Convert DataFrame to list of dictionaries
-        data_list = df.to_dict(orient='records')
+            data_list = df.to_dict(orient='records')
+            collection.insert_many(data_list)
 
-        # Insert the data into the MongoDB collection
-        collection.insert_many(data_list)
+            print(f"Fetched and stored data for {symbol} successfully.")
 
-        print("Fetched and stored data successfully.")
-        time.sleep(60)  # Sleep for 24 hours
+        time.sleep(60)
 
 @app.route('/')
 def home():
@@ -75,17 +72,23 @@ def about():
 def chart():
     client = MongoClient(mongo_uri, server_api=ServerApi('1'))
     db = client[database_name]
-    collection = db[collection_name]
-    data = list(collection.find())
 
-    # Convert Unix timestamps to JavaScript timestamps and extract high prices
-    processed_data = [{'date': entry['Kline open time'], 'low': float(entry['Low price']),
-                       'open': float(entry['Open price']), 'close': float(entry['Close price']),
-                       'high': float(entry['High price'])} for entry in data]
+    processed_data = []
 
-    data_json = json.dumps(processed_data)  # Convert the processed data to JSON
+    for symbol in cryptocurrencies:
+        collection_name = symbol.lower()
+        collection = db[collection_name]
+        data = list(collection.find())
+
+        processed_data.append({
+            'symbol': symbol,
+            'data': [{'date': entry['Kline open time'], 'low': float(entry['Low price']),
+                      'open': float(entry['Open price']), 'close': float(entry['Close price']),
+                      'high': float(entry['High price'])} for entry in data]
+        })
+
+    data_json = json.dumps(processed_data)
     return render_template('chart.html', data=data_json)
-
 
 # Create a new thread for the batch process
 batch_thread = threading.Thread(target=fetch_and_store_data)
