@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Plot - Cryptocurrency Price Tracker</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('datetime', 'Date');
+        data.addColumn('number', 'High Price');
+
+        var dataArray = {{ data|safe }};
+        for (var i = 0; i < dataArray.length; i++) {
+            data.addRow([new Date(dataArray[i].date), dataArray[i].high]);
+        }
+
+        var options = {
+            title: 'High Prices Over Time',
+            titleTextStyle: {
+                color: '#333',
+                fontSize: 24,
+                bold: true
+            },
+            hAxis: {
+                title: 'Date',
+                format: 'MMM d, y HH:mm',  // Format for date and hours:minutes
+                textStyle: {
+                    color: '#555'
+                },
+                gridlines: {
+                    count: -1,  // Display gridlines for all ticks
+                },
+                minorGridlines: {
+                    count: 0  // Remove minor gridlines
+                },
+                viewWindow: {
+                    min: data.getColumnRange(0).min,  // Set the minimum value to the first date in the data
+                    max: data.getColumnRange(0).max,  // Set the maximum value to the last date in the data
+                },
+            },
+            vAxis: {
+                title: 'Price',
+                format: 'currency',
+                textStyle: {
+                    color: '#555'
+                }
+            },
+            legend: {
+                position: 'none'
+            },
+            curveType: 'function',  // Smooth curve
+            backgroundColor: {
+                fill: '#f8f8f8',
+                stroke: '#e6e6e6',
+                strokeWidth: 1
+            },
+            colors: ['#4285F4'],  // Use your preferred color(s) here
+            fontName: 'Arial',
+            chartArea: {
+                left: 60,
+                top: 40,
+                width: '80%',
+                height: '70%'
+            }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('lineChart'));
+        chart.draw(data, options);
+    }
+</script>
+</head>
+<body>
+    {% include 'nav.html' %}
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h1>High Price Chart</h1>
+        <p>Visualizing high prices of stock over time using Google Charts</p>
+    </div>
+    <div style="width: 80%; margin: auto;" id="lineChart"></div>
+</body>
+</html>
