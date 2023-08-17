@@ -1,3 +1,24 @@
+import requests
+import pandas as pd
+from datetime import datetime, timedelta
+import time
+from pymongo import MongoClient
+from pymongo.server_api import ServerApi
+from flask import Flask, render_template
+import json
+import threading
+
+# Binance API endpoint
+url = "https://api.binance.com/api/v3/klines"
+
+# MongoDB configuration
+mongo_uri = "mongodb+srv://200539302:3JCo1k2agFosqzHC@cluster0.oj3tfzo.mongodb.net/"
+database_name = "Stockdata"
+collection_name = "binance"
+
+# Flask app configuration
+app = Flask(__name__)
+
 
 # Function to fetch and store data from Binance
 def fetch_and_store_data():
@@ -71,4 +92,4 @@ batch_thread = threading.Thread(target=fetch_and_store_data)
 
 if __name__ == '__main__':
     batch_thread.start()  # Start the batch process thread
-    app.run(debug=True,port=80)   # Start the Flask app
+    app.run(debug=True,port=1364)   # Start the Flask app
