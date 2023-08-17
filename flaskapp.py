@@ -63,4 +63,5 @@ def fetch_and_store_data():
         print("Fetched and stored data successfully.")
         time.sleep(24 * 60 * 60)  # Sleep for 24 hours
 
+print("data is")
 print(data_list)
