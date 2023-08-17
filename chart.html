@@ -8,60 +8,70 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
     google.charts.load('current', {'packages':['corechart']});
-    google.charts.setOnLoadCallback(drawChart);
+    google.charts.setOnLoadCallback(drawCharts);
 
-    function drawChart() {
-        var data = new google.visualization.DataTable();
-        data.addColumn('datetime', 'Date');
-        data.addColumn('number', 'Low');
-        data.addColumn('number', 'Open');
-        data.addColumn('number', 'Close');
-        data.addColumn('number', 'High');
+    function drawCharts() {
+        var cryptocurrencies = {{ data|safe }};
 
-        var dataArray = {{ data|safe }};
-        for (var i = 0; i < dataArray.length; i++) {
-            var entry = dataArray[i];
-            data.addRow([new Date(entry.date), entry.low, entry.open, entry.close, entry.high]);
+        for (var i = 0; i < cryptocurrencies.length; i++) {
+            var crypto = cryptocurrencies[i];
+            var data = new google.visualization.DataTable();
+            data.addColumn('datetime', 'Date');
+            data.addColumn('number', 'Low');
+            data.addColumn('number', 'Open');
+            data.addColumn('number', 'Close');
+            data.addColumn('number', 'High');
+
+            var dataArray = crypto.data;
+            for (var j = 0; j < dataArray.length; j++) {
+                var entry = dataArray[j];
+                data.addRow([new Date(entry.date), entry.low, entry.open, entry.close, entry.high]);
+            }
+
+            var options = {
+                title: 'Candlestick Chart - ' + crypto.symbol,
+                titleTextStyle: {
+                    color: '#333',
+                    fontSize: 24,
+                    bold: true
+                },
+                legend: 'none',
+                backgroundColor: {
+                    fill: '#f8f8f8',
+                    stroke: '#e6e6e6',
+                    strokeWidth: 1
+                },
+                colors: ['#4285F4'],  // Use your preferred color(s) here
+                fontName: 'Arial',
+                chartArea: {
+                    left: 60,
+                    top: 40,
+                    width: '80%',
+                    height: '70%'
+                },
+                candlestick: {
+                    fallingColor: { strokeWidth: 0, fill: '#d32f2f' }, // Red for falling candles
+                    risingColor: { strokeWidth: 0, fill: '#00bfa5' }   // Green for rising candles
+                },
+            };
+
+            var chart = new google.visualization.CandlestickChart(document.getElementById('candlestickChart' + crypto.symbol));
+            chart.draw(data, options);
         }
-
-        var options = {
-            title: 'BTC/USDT',
-            titleTextStyle: {
-                color: '#333',
-                fontSize: 24,
-                bold: true
-            },
-            legend: 'none',
-            backgroundColor: {
-                fill: '#f8f8f8',
-                stroke: '#e6e6e6',
-                strokeWidth: 1
-            },
-            colors: ['#4285F4'],  // Use your preferred color(s) here
-            fontName: 'Arial',
-            chartArea: {
-                left: 60,
-                top: 40,
-                width: '80%',
-                height: '70%'
-            },
-            candlestick: {
-                fallingColor: { strokeWidth: 0, fill: '#d32f2f' }, // Red for falling candles
-                risingColor: { strokeWidth: 0, fill: '#00bfa5' }   // Green for rising candles
-            },
-        };
-
-        var chart = new google.visualization.CandlestickChart(document.getElementById('candlestickChart'));
-        chart.draw(data, options);
     }
     </script>
 </head>
 <body>
     {% include 'nav.html' %}
     <div style="text-align: center; margin-bottom: 20px;">
-        <h1>Candlestick Chart - High, Low, Open, Close Prices Over Time</h1>
-        <p>Visualizing candlestick chart of stock prices over time using Google Charts</p>
+        <h1>Candlestick Charts - Cryptocurrency Prices Over Time</h1>
+        <p>Visualizing candlestick charts of cryptocurrency prices over time using Google Charts</p>
     </div>
-    <div style="width: 80%; margin: auto;" id="candlestickChart"></div>
+
+    <div style="width: 80%; margin: auto;">
+        <div id="candlestickChartBTCUSDT"></div>
+        <div id="candlestickChartLTCUSDT"></div>
+        <div id="candlestickChartETHUSDT"></div>
+    </div>
 </body>
 </html>
